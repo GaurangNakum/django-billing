@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="container-fluid p-2 ">
+
+    <div class="form-group row">
+      <div class="col-8">
+        <h3><a  style="color:mediumorchid;" href= "/customer" class="col-sm-2 col-form-label">Customer Master</a></h3>
+      </div>
+      <div class="col-4">
+        <div class="float-right">
+            <form class="form-inline" method="POST" action="/search_customer">
+              {% csrf_token %}
+              <a class="btn btn-sm mr-sm-2 my-2 btn-secondary" href="/alt_cust/0">Add New</a>
+              <input class="form-control mr-sm " name = "src_cust_name" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-sm btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+      </div>
+    </div>
+
+        <table class="table  table-striped">
+             <thead>
+                 <tr>
+                    <th>Sno.</th>
+                    <th>Name</th>
+                    <th>Code</th>
+                    <th>Contact No.</th>
+                    <th>City</th>
+                    <th>Action</th>
+                 </tr>
+             </thead>
+             <tbody>
+                {% for p in customer %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{p.name}}</td>
+                    <td>{{p.code}}</td>
+                    <td>{{p.contact}}</td>
+                    <td>{{p.city}}</td>
+                    <td><a class="btn btn-sm btn-primary" href="alt_cust/{{p.id}}">Edit</a></td>
+                </tr>
+                {% endfor %}
+             </tbody>
+ 
+         </table>
+        
+    </div>
+ </div>
+
+{% endblock %}

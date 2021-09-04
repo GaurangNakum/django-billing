@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="container-fluid p-2 ">
+        <div class="navbar">
+            <h2><a  style="color:mediumorchid;" href= "/product" class="navbar-brand">Product Master</a></h2>
+            <form class="form-inline" method="POST" action="/search_product">
+                {% csrf_token %}
+                <input class="form-control mr-sm-2" name = "src_prod_name" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+         
+         <table class="table">
+             <thead>
+                 <tr>
+                    <th>Sno.</th>
+                    <th>Image</th>
+                     <th>Name</th>
+                     <th>Code</th>
+                     <th>MRP</th>
+                     <th>Rate</th>
+                     <th>Action</th>
+                 </tr>
+             </thead>
+             <tbody>
+                {% for p in product %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td><img style="height: 100px;" class="figure-img img-fluid rounded" src="{{p.image.url}}"></td>
+                    <td>{{p.name}}</td>
+                    <td>{{p.code}}</td>
+                    <td>{{p.mrp}}</td>
+                    <td>{{p.rate}}</td>
+                    <td><a class="btn btn-sm btn-primary" href="">Edit</a></td>
+                </tr>
+                {% endfor %}
+             </tbody>
+ 
+         </table>
+        
+    </div>
+ </div>
+
+{% endblock %}

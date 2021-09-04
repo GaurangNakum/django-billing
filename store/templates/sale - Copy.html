@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+{% load static %}  
+ 
+<header>
+    <h1>Invoice</h1>
+    <address contenteditable>
+        <p>Rajkot</p>
+        <p><Gujrat-India></Gujrat-India></p>
+        <p>+91 7016146191</p>
+    </address>
+    <br>
+</header>
+    <div class="container-fluid mt-3 border = 0 no-gutters">
+
+        <form action="/sale" method="POST"> 
+        {% csrf_token %}   
+            <div class='row mx-auto no-gutters ' name = 'divs'>
+                <div class='col-lg-5'>    
+                    <datalist id="items">
+                        {% for p in product %}
+                            <option value="{{p.name}}" data-xyz = "{{p.id}}" >
+                        {% endfor %}
+                    </datalist> 
+                    
+                    <input type='text' class='form-control' id = 'itemname' placeholder='Item Name' list="items" onfocusout="getItemid()">
+                    <input name = 'srno' type='text' id = 'srno'>
+                    <input name = 'itemid' type='text' id = 'itemid'>
+                </div>
+                <div class='col-lg-2'><input type='text' class='form-control' name = 'qty' id = 'qty' placeholder='Quantity'></div>
+                <div class='col-lg-2'><input type='text' class='form-control' name = 'rate' id = 'rate' onfocusout='calAmount()' placeholder='Rate'></div>
+                <div class='col-lg-2'><input type='text' class='form-control' name = 'amount' id = 'amount' onfocusout='calAmount()' placeholder='Amount' value=''></div>
+
+                <div class='col-lg-1 mt-1'><button type="submit" class='btn btn-outline-primary btn-sm' onclick='addItemrow()'>Add</button></div>
+                <input type="submit" value=" + " class="btn btn-block btn-light border-left">
+            </div>
+        
+        
+        <div class='row mx-auto no-gutters ' name = 'divs'>
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th >Sr</th>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Rate</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                    <th hidden scope="col">Item Id</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr id ="add_after_me">
+                  </tr>
+      
+                </tbody>
+            </table>
+          
+        </div>
+    </form>    
+        <div class="col-6 float-right"><button class="btn float-right btn-outline-info" type="submit">Save</button></div>
+
+    
+    </div>
+
+
+
+<script>
+    function getItemid() {
+            var val = $('#itemname').val()
+            var xyz = $('#items option').filter(function() {
+                return this.value == val;
+            }).data('xyz');
+            var msg = xyz ? 'xyz=' + xyz : 'No Match';
+            document.getElementById("itemid").value = xyz
+    }
+    function calAmount() {
+			var y = document.getElementById("qty").value;
+			var z = document.getElementById("rate").value;
+			var x = +y * +z;
+			document.getElementById("amount").value = x
+    }
+    
+    function addItemrow() {
+        var sr = document.getElementsByName("itemRow").length + 1;
+        var name = document.getElementById("itemname").value;
+        var qty = document.getElementById("qty").value;
+        var rate = document.getElementById("rate").value;
+        var amount = document.getElementById("amount").value;
+        var itemid = document.getElementById("itemid").value;    
+        alert(itemid);
+        if (!itemid) {
+            return;
+        }
+        
+        document.getElementById("add_after_me").insertAdjacentHTML("beforebegin",
+            "<th name = 'itemRow'>"+sr+"</th> " +
+                "<td>"+ name +"</td> " +
+                "<td>"+ qty +"</td> " +
+                "<td>"+ rate +"</td> " +
+                "<td>"+ amount +"</td> " +
+                "<td><button class='btn btn-outline-danger btn-sm' name='btnremove'>Remove</button><button class='btn btn-outline-warning btn-sm' name='btnremove'>Edit</button></td> " +
+                "<td>"+ itemid +"</td>");
+
+        document.getElementById("itemname").value = ""
+        document.getElementById("qty").value = ""
+        document.getElementById("rate").value = ""
+        document.getElementById("amount").value = ""
+        document.getElementById("itemid").value = ""
+        
+	}
+</script>
+
+{% endblock %}

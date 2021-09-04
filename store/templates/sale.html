@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+{% load static %}
+
+{% load cart %}
+<div class="container-fluid ">
+    <div class="row p-1">
+        <div class="col-sm-8">
+            <img src="http://via.placeholder.com/400x90?text=logo">
+        </div>
+
+        <div class="col-sm-4 text-right">
+            <p class="font-weight-bold mb-1">Invoice No :  #550</p>
+            <div class="form-group row">
+                <label for="colFormLabel" class="col-sm-5 col-form-label">Date</label>
+                <div class="col-sm-7"><input type="date" class="form-control" id="saledate"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="result"></div>
+    <hr class="my-1">
+
+
+    <div class="row p-1">
+        <div class="col-6">
+            <form action="/salesave" method="post">
+                {% csrf_token %}
+                <div class="form-group row">
+                  <label for="colFormLabel" class="col-sm-3 col-form-label">Customer Name</label>
+                    <div class="col-sm-9">
+                        <datalist id="customers">
+                            {% for cust in customer %}
+                                <option value="{{cust.name}}" data-cust = "{{cust.id}}" >{{cust.city}}</option>
+                            {% endfor %}
+                        </datalist> 
+                    <input type="text" class="form-control form-control-sizing-sm" name="custname" id="custname" list="customers" placeholder="Customer Name" onfocusout="getCustid()" value="{{request.session.sale.2}}">
+                    <input hidden type='text' name='custid' id='custid' placeholder='Customer ID' value="{{request.session.sale.1}}">
+                    </div>
+                </div>
+                <button type="submit" class='btn btn-outline-danger btn-sm' name='btnremove' >save</button>
+            </form>
+        </div>
+
+        <div class="col-2 text-right">
+        </div>
+        <div class="col-4 ">
+            <div class="form-group row">
+                <label for="colFormLabel" class="col-sm-5 col-form-label">Payment Mode</label>
+                <div class="col-sm-7">
+                    <select class="custom-select " id="inputGroupSelect01">
+                        <option value="1">Cash</option>
+                        <option value="2">Bank</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="mt-3 no-gutters">
+        
+        <div class='row mx-auto no-gutters p-2' name = 'divs'>
+            <table class="table table-striped" id="tableItem" border="0" >
+                <thead>
+                  <tr>
+                    <th width="100" class="text-center">Sr</th>
+                    <th class="text-left">Product Name</th>
+                    <th width="150" class="text-center">Quantity</th>
+                    <th width="100" class="text-center">Rate</th>
+                    <th width="150" class="text-center">Amount</th>
+                    <th width="50" ></th>
+                    <th width="50" ></th>
+                    <th hidden scope="col" width="50" >Item Id</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for key, value in request.session.cart.items %}
+                    <tr id="{{ key }}" align="center" >
+                    <th name = 'itemRow' class="p-0">{{ key }}</th>
+                    <td align="left" class="p-0">{{ value.1 }}</td>
+                    <td align="center" class="p-0">{{ value.2 }}</td>
+                    <td align="center" class="p-0">{{ value.3 }}</td>
+                    <td align="center" class="p-0">{{ value.4 }}</td>
+                    <td align="right" class="p-0" >
+                        <button class='btn btn-outline-warning btn-sm'  onclick="getId(this)" name='btnedit'>Edit</button>
+                    </td>
+                    <td align="left" class="p-0">
+                        <form action="/sale" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class='btn btn-outline-danger btn-sm' name='btnremove' >Remove</button>
+                            <input hidden type="text" name='item_srno' value='{{key}}'>
+                            <input hidden type="text" name='remove' value='remove'>
+                        </form>
+                    </td>
+                    <td hidden>{{ value.0 }}</td>
+                  </tr>
+                  {% endfor %}    
+                </tbody>
+            </table>
+          
+        </div>
+        <form action="/sale" method="POST"> 
+            {% csrf_token %}   
+            <div class='row mx-auto no-gutters p-2' >
+                    <div class='col-lg-5'>    
+                        <datalist id="items">
+                            {% for p in product %}
+                                <option value="{{p.name}}" data-xyz = "{{p.id}}" >
+                            {% endfor %}
+                        </datalist> 
+                        
+                        <input type='text' class='form-control form-control-label float-left' name = 'itemname' id = 'itemname' placeholder='Item Name' list="items" onfocusout="getItemid()">
+                        <input hidden name = 'srno' type='text' id = 'srno'  placeholder='Srno'>
+                        <input hidden name = 'itemid' type='text' id = 'itemid'  placeholder='ItemID'>
+                    </div>
+                    <div class='col-lg-2'><input type='text' class='form-control form-control-label' name = 'qty' id = 'qty' placeholder='Quantity'></div>
+                    <div class='col-lg-2'><input type='text' class='form-control form-control-label' name = 'rate' id = 'rate' onfocusout='calAmount()' placeholder='Rate'></div>
+                    <div class='col-lg-2'><input type='text' class='form-control form-control-label' name = 'amount' id = 'amount' onfocusout='calAmount()' placeholder='Amount' value=''></div>
+                    <div class='col-lg-1'><button type="submit" class='btn btn-primary form-control form-control-bt-sm' onclick='addItemrow()'>Add</button></div>
+            </div>
+        </form>  
+        
+        <form action="/salesave" method="POST">
+        {% csrf_token %}
+            <input type="text" name='save' value='sale save'>
+            <div class="col-6 float-right"><button class="btn float-right btn-outline-info" type="submit">Save</button></div>
+            
+        </form>
+        <br>
+
+        <div class="d-flex flex-row-reverse bg-dark text-white p-4">
+            <div class="py-3 px-5 text-right">
+                <div class="mb-2">Grand Total</div>
+                <div class="h2 font-weight-light">$234,234</div>
+            </div>
+
+            <div class="py-3 px-5 text-right">
+                <div class="mb-2">Discount</div>
+                <div class="h2 font-weight-light">10%</div>
+            </div>
+
+            <div class="py-3 px-5 text-right">
+                <div class="mb-2">Sub - Total amount</div>
+                <div class="h2 font-weight-light">$32,432</div>
+            </div>
+        </div>
+    </div>
+    <input class="btn btn-sm" type="button" id="this_field" onclick="querySomething()" value="click me">
+    <input class="btn btn-sm" type="button" id="this_field" onclick="queryremove()" value="queryremove me">
+</div>
+
+<script>
+ 
+    function queryremove(){
+        sessionStorage.removeItem("clickcount");
+        
+    }
+    function querySomething(){
+        
+        var dict = new Object();
+            
+        dict[0] = 1;
+        dict[1] = "one";
+        dict[2] = 42;
+        dict[3] = "Chris";
+
+        for(var key in dict) {
+        var value = dict[key];
+        alert(value);
+
+        }
+
+
+        if(typeof(Storage) !== "undefined") {
+            if (sessionStorage.clickcount) {
+                sessionStorage.clickcount = dict[3];
+                
+            } else {
+                sessionStorage.clickcount = dict;
+                
+            }
+            
+            document.getElementById("result").innerHTML = sessionStorage.clickcount
+
+        } else {
+            document.getElementById("result").innerHTML = "Sorry, your browser does not support web storage...";
+        }
+    }
+    function getCustid() {
+            var val = $('#custname').val()
+            var cust = $('#customers option').filter(function() {
+                return this.value == val;
+            }).data('cust');
+            var msg = cust ? 'cust=' + cust : 'No Match';
+            document.getElementById("custid").value = cust
+    }
+
+    function getItemid() {
+            var val = $('#itemname').val()
+            var xyz = $('#items option').filter(function() {
+                return this.value == val;
+            }).data('xyz');
+            var msg = xyz ? 'xyz=' + xyz : 'No Match';
+            document.getElementById("itemid").value = xyz
+    }
+
+
+
+    function setTableid() {
+        var n = document.getElementById("tableItem").rows.length;
+        var rows = document.getElementById("tableItem").rows;
+        for (var i=1;i<rows.length; i++){
+            document.getElementById("srno").value = i
+            alert(i);
+            var myTable = document.getElementById('tableItem');
+            myTable.rows[i].cells[0].innerHTML = i;
+              
+        }
+    }
+
+    function  getId(element) {
+        var c = element.parentNode.parentNode.rowIndex;
+        var x = document.getElementById("tableItem").rows[c].cells[1].innerHTML
+        document.getElementById("srno").value =  document.getElementById("tableItem").rows[c].cells[0].innerHTML
+        document.getElementById("itemname").value =  document.getElementById("tableItem").rows[c].cells[1].innerHTML
+        document.getElementById("qty").value =  document.getElementById("tableItem").rows[c].cells[2].innerHTML
+        document.getElementById("rate").value =  document.getElementById("tableItem").rows[c].cells[3].innerHTML
+        document.getElementById("amount").value =  document.getElementById("tableItem").rows[c].cells[4].innerHTML
+        document.getElementById("itemid").value =  document.getElementById("tableItem").rows[c].cells[6].innerHTML
+    }
+
+    function calAmount() {
+			var y = document.getElementById("qty").value;
+			var z = document.getElementById("rate").value;
+			var x = +y * +z;
+			document.getElementById("amount").value = x
+    }
+    function editItemrow() {
+        var c = 1;
+        var srno = document.getElementById("itemname").value;
+        var x = document.getElementById("tableItem").rows[c].cells[1].innerHTML
+	}
+    function addItemrow() {
+        var sr = document.getElementsByName("itemRow").length + 1;
+        var srvalue  =  document.getElementById("srno").value;
+        if (!srvalue) {
+            document.getElementById("srno").value = sr
+        }
+	}
+</script>
+
+{% endblock %}
